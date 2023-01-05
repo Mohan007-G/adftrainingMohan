@@ -1,0 +1,42 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "bigdatalabdatafactory2023"
+		},
+		"AzureBlobStorage1_connectionString": {
+			"value": ""
+		},
+		"AzureDataLakeStorage1_accountKey": {
+			"value": ""
+		},
+		"FileServer1_password": {
+			"value": ""
+		},
+		"AzureDataLakeStorage1_properties_typeProperties_url": {
+			"value": "https://bigdatastoragecasestudy.dfs.core.windows.net/"
+		},
+		"FileServer1_properties_typeProperties_host": {
+			"value": "\\\\adflabvm\\sampledata"
+		},
+		"FileServer1_properties_typeProperties_userId": {
+			"value": "developer"
+		},
+		"HttpServerzip_properties_typeProperties_url": {
+			"value": "https://nivednotesrefmaterial.blob.core.windows.net/adf/cognizant/batch-1/Big-Data-Hands-on-Lab/sampledata.zip?sv=2021-10-04&st=2023-01-04T10%3A06%3A26Z&se=2024-01-05T10%3A06%3A00Z&sr=b&sp=r&sig=%2ByhZB%2FUOHDJ9Teur5y%2FQZON%2B7zq4R9mijFIENy9Tzqg%3D "
+		},
+		"Trigger_gmh_properties_pipeline_parameters_windowStart": {
+			"value": "@trigger().outputs.windowStartTime"
+		},
+		"Trigger_gmh_properties_pipeline_parameters_windowEnd": {
+			"value": "@trigger().outputs.windowEndTime"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}
