@@ -1,0 +1,6 @@
+{
+	"name": "integrationRuntimetask",
+	"properties": {
+		"type": "SelfHosted"
+	}
+}
