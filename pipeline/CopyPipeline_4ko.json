@@ -16,11 +16,11 @@
 				"userProperties": [
 					{
 						"name": "Source",
-						"value": "sampledata/"
+						"value": "sampledata/sampledata/"
 					},
 					{
 						"name": "Destination",
-						"value": "zip//"
+						"value": "zip/"
 					}
 				],
 				"typeProperties": {
@@ -29,7 +29,8 @@
 						"storeSettings": {
 							"type": "FileServerReadSettings",
 							"recursive": true,
-							"wildcardFileName": "*"
+							"wildcardFileName": "*",
+							"deleteFilesAfterCompletion": false
 						},
 						"formatSettings": {
 							"type": "BinaryReadSettings",
@@ -48,13 +49,13 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "SourceDataset_4ko",
+						"referenceName": "Binarysorcezip",
 						"type": "DatasetReference"
 					}
 				],
 				"outputs": [
 					{
-						"referenceName": "DestinationDataset_4ko",
+						"referenceName": "Binarysinkzip",
 						"type": "DatasetReference"
 					}
 				]

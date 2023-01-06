@@ -1,15 +1,16 @@
 {
-	"name": "SourceDataset_4ko",
+	"name": "Binarysorcezip",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "FileServer1",
+			"referenceName": "FileServer2zipp",
 			"type": "LinkedServiceReference"
 		},
 		"annotations": [],
 		"type": "Binary",
 		"typeProperties": {
 			"location": {
-				"type": "FileServerLocation"
+				"type": "FileServerLocation",
+				"fileName": "sampledata.zip"
 			},
 			"compression": {
 				"type": "ZipDeflate",
