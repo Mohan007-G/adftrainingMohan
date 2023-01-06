@@ -1,0 +1,16 @@
+{
+	"name": "2016CrimeData",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabasechicago",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "2016CrimeData"
+		}
+	}
+}

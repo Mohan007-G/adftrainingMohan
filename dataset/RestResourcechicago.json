@@ -1,0 +1,12 @@
+{
+	"name": "RestResourcechicago",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "RestServiceChicago",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"schema": []
+	}
+}
