@@ -14,13 +14,31 @@
 		"FileServer1_password": {
 			"value": ""
 		},
+		"FileServer2zipp_password": {
+			"value": ""
+		},
+		"FileServerzip_password": {
+			"value": ""
+		},
 		"AzureDataLakeStorage1_properties_typeProperties_url": {
 			"value": "https://bigdatastoragecasestudy.dfs.core.windows.net/"
 		},
 		"FileServer1_properties_typeProperties_host": {
-			"value": "\\\\adflabvm\\sampledata"
+			"value": "\\\\adflabvm\\Data"
 		},
 		"FileServer1_properties_typeProperties_userId": {
+			"value": "developer"
+		},
+		"FileServer2zipp_properties_typeProperties_host": {
+			"value": "\\\\adflabvm\\Data"
+		},
+		"FileServer2zipp_properties_typeProperties_userId": {
+			"value": "developer"
+		},
+		"FileServerzip_properties_typeProperties_host": {
+			"value": "\\\\adflabvm\\sampledata"
+		},
+		"FileServerzip_properties_typeProperties_userId": {
 			"value": "developer"
 		},
 		"HttpServerzip_properties_typeProperties_url": {

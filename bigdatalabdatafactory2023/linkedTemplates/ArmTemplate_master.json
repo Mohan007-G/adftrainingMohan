@@ -19,15 +19,39 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'FileServer1'"
 		},
+		"FileServer2zipp_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'FileServer2zipp'"
+		},
+		"FileServerzip_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'FileServerzip'"
+		},
 		"AzureDataLakeStorage1_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://bigdatastoragecasestudy.dfs.core.windows.net/"
 		},
 		"FileServer1_properties_typeProperties_host": {
 			"type": "string",
-			"defaultValue": "\\\\adflabvm\\sampledata"
+			"defaultValue": "\\\\adflabvm\\Data"
 		},
 		"FileServer1_properties_typeProperties_userId": {
+			"type": "string",
+			"defaultValue": "developer"
+		},
+		"FileServer2zipp_properties_typeProperties_host": {
+			"type": "string",
+			"defaultValue": "\\\\adflabvm\\Data"
+		},
+		"FileServer2zipp_properties_typeProperties_userId": {
+			"type": "string",
+			"defaultValue": "developer"
+		},
+		"FileServerzip_properties_typeProperties_host": {
+			"type": "string",
+			"defaultValue": "\\\\adflabvm\\sampledata"
+		},
+		"FileServerzip_properties_typeProperties_userId": {
 			"type": "string",
 			"defaultValue": "developer"
 		},
@@ -79,6 +103,12 @@
 					"FileServer1_password": {
 						"value": "[parameters('FileServer1_password')]"
 					},
+					"FileServer2zipp_password": {
+						"value": "[parameters('FileServer2zipp_password')]"
+					},
+					"FileServerzip_password": {
+						"value": "[parameters('FileServerzip_password')]"
+					},
 					"HttpServerzip_properties_typeProperties_url": {
 						"value": "[parameters('HttpServerzip_properties_typeProperties_url')]"
 					},
@@ -90,6 +120,18 @@
 					},
 					"FileServer1_properties_typeProperties_userId": {
 						"value": "[parameters('FileServer1_properties_typeProperties_userId')]"
+					},
+					"FileServer2zipp_properties_typeProperties_host": {
+						"value": "[parameters('FileServer2zipp_properties_typeProperties_host')]"
+					},
+					"FileServer2zipp_properties_typeProperties_userId": {
+						"value": "[parameters('FileServer2zipp_properties_typeProperties_userId')]"
+					},
+					"FileServerzip_properties_typeProperties_host": {
+						"value": "[parameters('FileServerzip_properties_typeProperties_host')]"
+					},
+					"FileServerzip_properties_typeProperties_userId": {
+						"value": "[parameters('FileServerzip_properties_typeProperties_userId')]"
 					}
 				}
 			},
