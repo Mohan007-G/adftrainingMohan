@@ -11,6 +11,9 @@
 		"AzureDataLakeStorage1_accountKey": {
 			"value": ""
 		},
+		"AzureSqlDatabaseccc_connectionString": {
+			"value": ""
+		},
 		"FileServer1_password": {
 			"value": ""
 		},
@@ -41,8 +44,14 @@
 		"FileServerzip_properties_typeProperties_userId": {
 			"value": "developer"
 		},
+		"HttpServerchicago_properties_typeProperties_url": {
+			"value": "https://data.cityofchicago.org/resource/crimes.json?$limit=50000"
+		},
 		"HttpServerzip_properties_typeProperties_url": {
 			"value": "https://nivednotesrefmaterial.blob.core.windows.net/adf/cognizant/batch-1/Big-Data-Hands-on-Lab/sampledata.zip?sv=2021-10-04&st=2023-01-04T10%3A06%3A26Z&se=2024-01-05T10%3A06%3A00Z&sr=b&sp=r&sig=%2ByhZB%2FUOHDJ9Teur5y%2FQZON%2B7zq4R9mijFIENy9Tzqg%3D "
+		},
+		"RestServiceChicago_properties_typeProperties_url": {
+			"value": "https://data.cityofchicago.org/resource/crimes.json?$limit=50000 "
 		},
 		"Trigger_gmh_properties_pipeline_parameters_windowStart": {
 			"value": "@trigger().outputs.windowStartTime"

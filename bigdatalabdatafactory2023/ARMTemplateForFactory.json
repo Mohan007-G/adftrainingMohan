@@ -15,6 +15,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'AzureDataLakeStorage1'"
 		},
+		"AzureSqlDatabaseccc_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabaseccc'"
+		},
 		"FileServer1_password": {
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'FileServer1'"
@@ -55,9 +59,17 @@
 			"type": "string",
 			"defaultValue": "developer"
 		},
+		"HttpServerchicago_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://data.cityofchicago.org/resource/crimes.json?$limit=50000"
+		},
 		"HttpServerzip_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://nivednotesrefmaterial.blob.core.windows.net/adf/cognizant/batch-1/Big-Data-Hands-on-Lab/sampledata.zip?sv=2021-10-04&st=2023-01-04T10%3A06%3A26Z&se=2024-01-05T10%3A06%3A00Z&sr=b&sp=r&sig=%2ByhZB%2FUOHDJ9Teur5y%2FQZON%2B7zq4R9mijFIENy9Tzqg%3D "
+		},
+		"RestServiceChicago_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://data.cityofchicago.org/resource/crimes.json?$limit=50000 "
 		},
 		"Trigger_gmh_properties_pipeline_parameters_windowStart": {
 			"type": "string",
@@ -410,6 +422,162 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "HttpReadSettings",
+									"requestMethod": "GET"
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Jsonchicago",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DelimitedTextchicago",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Copy data1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow1",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"sourcechicagodf": {},
+									"sinkchicago": {},
+									"sinkdayofweek": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Jsonchicago')]",
+				"[concat(variables('factoryId'), '/datasets/DelimitedTextchicago')]",
+				"[concat(variables('factoryId'), '/dataflows/dataflow1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipelinechicago')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DataflowChicago",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow1",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"sourcechicagodf": {},
+									"sinkchicago": {},
+									"sinkdayofweek": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflow1')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pipelinezip')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -474,6 +642,27 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/Binaryzip')]",
 				"[concat(variables('factoryId'), '/datasets/Binaryadlszip')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlTable2223')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabaseccc",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "crimedata"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabaseccc')]"
 			]
 		},
 		{
@@ -568,6 +757,33 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/HttpServerzip')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DelimitedTextchicago')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"container": "task-3chicago"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
 			]
 		},
 		{
@@ -757,6 +973,46 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Jsonchicago')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HttpServerchicago",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "HttpServerLocation"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/HttpServerchicago')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RestResourcechicago')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "RestServiceChicago",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/RestServiceChicago')]"
 			]
 		},
 		{
@@ -964,6 +1220,178 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/aggdayofweek')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"container": "sparkcontainer"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dfsrcchicago')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "32bbdfc1-5e7f-40f0-a666-0f208302f46a.txt",
+						"container": "task-3chicago"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "id",
+						"type": "String"
+					},
+					{
+						"name": "case_number",
+						"type": "String"
+					},
+					{
+						"name": "date",
+						"type": "String"
+					},
+					{
+						"name": "block",
+						"type": "String"
+					},
+					{
+						"name": "iucr",
+						"type": "String"
+					},
+					{
+						"name": "primary_type",
+						"type": "String"
+					},
+					{
+						"name": "description",
+						"type": "String"
+					},
+					{
+						"name": "location_description",
+						"type": "String"
+					},
+					{
+						"name": "arrest",
+						"type": "String"
+					},
+					{
+						"name": "domestic",
+						"type": "String"
+					},
+					{
+						"name": "beat",
+						"type": "String"
+					},
+					{
+						"name": "district",
+						"type": "String"
+					},
+					{
+						"name": "ward",
+						"type": "String"
+					},
+					{
+						"name": "community_area",
+						"type": "String"
+					},
+					{
+						"name": "fbi_code",
+						"type": "String"
+					},
+					{
+						"name": "x_coordinate",
+						"type": "String"
+					},
+					{
+						"name": "y_coordinate",
+						"type": "String"
+					},
+					{
+						"name": "year",
+						"type": "String"
+					},
+					{
+						"name": "updated_on",
+						"type": "String"
+					},
+					{
+						"name": "latitude",
+						"type": "String"
+					},
+					{
+						"name": "longitude",
+						"type": "String"
+					},
+					{
+						"name": ":@computed_region_awaf_s7ux",
+						"type": "String"
+					},
+					{
+						"name": ":@computed_region_6mkv_f3dw",
+						"type": "String"
+					},
+					{
+						"name": ":@computed_region_vrxf_vc4k",
+						"type": "String"
+					},
+					{
+						"name": ":@computed_region_bdys_3d7i",
+						"type": "String"
+					},
+					{
+						"name": ":@computed_region_43wa_7qmu",
+						"type": "String"
+					},
+					{
+						"name": ":@computed_region_rpca_8um6",
+						"type": "String"
+					},
+					{
+						"name": ":@computed_region_d9mm_jgwp",
+						"type": "String"
+					},
+					{
+						"name": ":@computed_region_d3ds_rm58",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/AzureBlobStorage1')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -998,6 +1426,19 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/integrationRuntimes/integrationRuntimetask')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabaseccc')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureSqlDatabaseccc_connectionString')]"
+				}
+			},
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/FileServer1')]",
@@ -1072,6 +1513,21 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/HttpServerchicago')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "HttpServer",
+				"typeProperties": {
+					"url": "[parameters('HttpServerchicago_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/HttpServerzip')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -1080,6 +1536,21 @@
 				"type": "HttpServer",
 				"typeProperties": {
 					"url": "[parameters('HttpServerzip_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RestServiceChicago')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('RestServiceChicago_properties_typeProperties_url')]",
 					"enableServerCertificateValidation": true,
 					"authenticationType": "Anonymous"
 				}
@@ -1155,6 +1626,149 @@
 				"typeProperties": {}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow1')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "dfsrcchicago",
+								"type": "DatasetReference"
+							},
+							"name": "sourcechicagodf"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "AzureSqlTable2223",
+								"type": "DatasetReference"
+							},
+							"name": "sinkchicago"
+						},
+						{
+							"dataset": {
+								"referenceName": "aggdayofweek",
+								"type": "DatasetReference"
+							},
+							"name": "sinkdayofweek"
+						}
+					],
+					"transformations": [
+						{
+							"name": "dateandtimechicago"
+						},
+						{
+							"name": "aggregate1"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          id as string,",
+						"          case_number as string,",
+						"          date as string,",
+						"          block as string,",
+						"          iucr as string,",
+						"          primary_type as string,",
+						"          description as string,",
+						"          location_description as string,",
+						"          arrest as string,",
+						"          domestic as string,",
+						"          beat as string,",
+						"          district as string,",
+						"          ward as string,",
+						"          community_area as string,",
+						"          fbi_code as string,",
+						"          x_coordinate as string,",
+						"          y_coordinate as string,",
+						"          year as integer,",
+						"          updated_on as string,",
+						"          latitude as string,",
+						"          longitude as string,",
+						"          {:@computed_region_awaf_s7ux} as string,",
+						"          {:@computed_region_6mkv_f3dw} as string,",
+						"          {:@computed_region_vrxf_vc4k} as string,",
+						"          {:@computed_region_bdys_3d7i} as string,",
+						"          {:@computed_region_43wa_7qmu} as string,",
+						"          {:@computed_region_rpca_8um6} as string,",
+						"          {:@computed_region_d9mm_jgwp} as string,",
+						"          {:@computed_region_d3ds_rm58} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     partitionBy('hash', 1)) ~> sourcechicagodf",
+						"sourcechicagodf derive(date = left(date, 10),",
+						"          Time = right(date,12),",
+						"     partitionBy('hash', 1)) ~> dateandtimechicago",
+						"dateandtimechicago aggregate(groupBy(dayofweek = dayOfWeek(toDate(date))),",
+						"     iucrcount = count(iucr)) ~> aggregate1",
+						"dateandtimechicago filter(year==2022) ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     recreate:true,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          id,",
+						"          case_number,",
+						"          date,",
+						"          block,",
+						"          iucr,",
+						"          primary_type,",
+						"          description,",
+						"          location_description,",
+						"          arrest,",
+						"          domestic,",
+						"          beat,",
+						"          district,",
+						"          ward,",
+						"          community_area,",
+						"          fbi_code,",
+						"          x_coordinate,",
+						"          y_coordinate,",
+						"          year,",
+						"          updated_on,",
+						"          latitude,",
+						"          longitude,",
+						"          {:@computed_region_awaf_s7ux},",
+						"          {:@computed_region_6mkv_f3dw},",
+						"          {:@computed_region_vrxf_vc4k},",
+						"          {:@computed_region_bdys_3d7i},",
+						"          {:@computed_region_43wa_7qmu},",
+						"          {:@computed_region_rpca_8um6},",
+						"          {:@computed_region_d9mm_jgwp},",
+						"          {:@computed_region_d3ds_rm58},",
+						"          Time",
+						"     ),",
+						"     partitionBy('hash', 1)) ~> sinkchicago",
+						"aggregate1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sinkdayofweek"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/dfsrcchicago')]",
+				"[concat(variables('factoryId'), '/datasets/AzureSqlTable2223')]",
+				"[concat(variables('factoryId'), '/datasets/aggdayofweek')]"
+			]
 		}
 	]
 }

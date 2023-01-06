@@ -7,19 +7,325 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "bigdatalabdatafactory2023"
 		},
-		"Trigger_gmh_properties_pipeline_parameters_windowStart": {
-			"type": "string",
-			"defaultValue": "@trigger().outputs.windowStartTime"
+		"AzureDataLakeStorage1_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'AzureDataLakeStorage1'"
 		},
-		"Trigger_gmh_properties_pipeline_parameters_windowEnd": {
+		"FileServer1_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'FileServer1'"
+		},
+		"FileServer2zipp_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'FileServer2zipp'"
+		},
+		"FileServerzip_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'FileServerzip'"
+		},
+		"AzureDataLakeStorage1_properties_typeProperties_url": {
 			"type": "string",
-			"defaultValue": "@trigger().outputs.windowEndTime"
+			"defaultValue": "https://bigdatastoragecasestudy.dfs.core.windows.net/"
+		},
+		"FileServer1_properties_typeProperties_host": {
+			"type": "string",
+			"defaultValue": "\\\\adflabvm\\Data"
+		},
+		"FileServer1_properties_typeProperties_userId": {
+			"type": "string",
+			"defaultValue": "developer"
+		},
+		"FileServer2zipp_properties_typeProperties_host": {
+			"type": "string",
+			"defaultValue": "\\\\adflabvm\\Data"
+		},
+		"FileServer2zipp_properties_typeProperties_userId": {
+			"type": "string",
+			"defaultValue": "developer"
+		},
+		"FileServerzip_properties_typeProperties_host": {
+			"type": "string",
+			"defaultValue": "\\\\adflabvm\\sampledata"
+		},
+		"FileServerzip_properties_typeProperties_userId": {
+			"type": "string",
+			"defaultValue": "developer"
 		}
 	},
 	"variables": {
 		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
 	},
 	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureDataLakeStorage1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('AzureDataLakeStorage1_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('AzureDataLakeStorage1_accountKey')]"
+					}
+				},
+				"connectVia": {
+					"referenceName": "integrationRuntimetask",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FileServer1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "FileServer",
+				"typeProperties": {
+					"host": "[parameters('FileServer1_properties_typeProperties_host')]",
+					"userId": "[parameters('FileServer1_properties_typeProperties_userId')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('FileServer1_password')]"
+					}
+				},
+				"connectVia": {
+					"referenceName": "integrationRuntimetask",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FileServer2zipp')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "FileServer",
+				"typeProperties": {
+					"host": "[parameters('FileServer2zipp_properties_typeProperties_host')]",
+					"userId": "[parameters('FileServer2zipp_properties_typeProperties_userId')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('FileServer2zipp_password')]"
+					}
+				},
+				"connectVia": {
+					"referenceName": "integrationRuntimetask",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/FileServerzip')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "FileServer",
+				"typeProperties": {
+					"host": "[parameters('FileServerzip_properties_typeProperties_host')]",
+					"userId": "[parameters('FileServerzip_properties_typeProperties_userId')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('FileServerzip_password')]"
+					}
+				},
+				"connectVia": {
+					"referenceName": "integrationRuntimetask",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CopyPipeline_task')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy_gmh",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "source//"
+							},
+							{
+								"name": "Destination",
+								"value": "destination1//"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "BinarySource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"modifiedDatetimeStart": {
+										"value": "@pipeline().parameters.windowStart",
+										"type": "Expression"
+									},
+									"modifiedDatetimeEnd": {
+										"value": "@pipeline().parameters.windowEnd",
+										"type": "Expression"
+									},
+									"wildcardFileName": "*"
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings"
+								}
+							},
+							"sink": {
+								"type": "BinarySink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"enableSkipIncompatibleRow": false,
+							"skipErrorFile": {
+								"fileMissing": true
+							},
+							"validateDataConsistency": false
+						},
+						"inputs": [
+							{
+								"referenceName": "SourceDataset_gmh",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DestinationDataset_gmh",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"windowStart": {
+						"type": "String"
+					},
+					"windowEnd": {
+						"type": "String"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Binaryadlszip')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Binarysinkzip')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileSystem": "zip"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Binarysorcezip')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "FileServer2zipp",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "FileServerLocation",
+						"fileName": "sampledata.zip"
+					},
+					"compression": {
+						"type": "ZipDeflate",
+						"level": "Optimal"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/FileServer2zipp')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DestinationDataset_4ko')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileSystem": "zip"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
 		{
 			"name": "[concat(parameters('factoryName'), '/DestinationDataset_8wv')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
@@ -44,7 +350,9 @@
 				},
 				"schema": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/DestinationDataset_v4c')]",
@@ -68,7 +376,9 @@
 				},
 				"schema": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/SourceDataset_4ko')]",
@@ -91,7 +401,9 @@
 					}
 				}
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/FileServer1')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/SourceDataset_8wv')]",
@@ -144,7 +456,9 @@
 					}
 				]
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/FileServer1')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/SourceDataset_v4c')]",
@@ -195,6 +509,147 @@
 						"type": "String"
 					}
 				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/FileServer1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow1')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "dfsrcchicago",
+								"type": "DatasetReference"
+							},
+							"name": "sourcechicagodf"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "AzureSqlTable2223",
+								"type": "DatasetReference"
+							},
+							"name": "sinkchicago"
+						},
+						{
+							"dataset": {
+								"referenceName": "aggdayofweek",
+								"type": "DatasetReference"
+							},
+							"name": "sinkdayofweek"
+						}
+					],
+					"transformations": [
+						{
+							"name": "dateandtimechicago"
+						},
+						{
+							"name": "aggregate1"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          id as string,",
+						"          case_number as string,",
+						"          date as string,",
+						"          block as string,",
+						"          iucr as string,",
+						"          primary_type as string,",
+						"          description as string,",
+						"          location_description as string,",
+						"          arrest as string,",
+						"          domestic as string,",
+						"          beat as string,",
+						"          district as string,",
+						"          ward as string,",
+						"          community_area as string,",
+						"          fbi_code as string,",
+						"          x_coordinate as string,",
+						"          y_coordinate as string,",
+						"          year as integer,",
+						"          updated_on as string,",
+						"          latitude as string,",
+						"          longitude as string,",
+						"          {:@computed_region_awaf_s7ux} as string,",
+						"          {:@computed_region_6mkv_f3dw} as string,",
+						"          {:@computed_region_vrxf_vc4k} as string,",
+						"          {:@computed_region_bdys_3d7i} as string,",
+						"          {:@computed_region_43wa_7qmu} as string,",
+						"          {:@computed_region_rpca_8um6} as string,",
+						"          {:@computed_region_d9mm_jgwp} as string,",
+						"          {:@computed_region_d3ds_rm58} as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     partitionBy('hash', 1)) ~> sourcechicagodf",
+						"sourcechicagodf derive(date = left(date, 10),",
+						"          Time = right(date,12),",
+						"     partitionBy('hash', 1)) ~> dateandtimechicago",
+						"dateandtimechicago aggregate(groupBy(dayofweek = dayOfWeek(toDate(date))),",
+						"     iucrcount = count(iucr)) ~> aggregate1",
+						"dateandtimechicago filter(year==2022) ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     recreate:true,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          id,",
+						"          case_number,",
+						"          date,",
+						"          block,",
+						"          iucr,",
+						"          primary_type,",
+						"          description,",
+						"          location_description,",
+						"          arrest,",
+						"          domestic,",
+						"          beat,",
+						"          district,",
+						"          ward,",
+						"          community_area,",
+						"          fbi_code,",
+						"          x_coordinate,",
+						"          y_coordinate,",
+						"          year,",
+						"          updated_on,",
+						"          latitude,",
+						"          longitude,",
+						"          {:@computed_region_awaf_s7ux},",
+						"          {:@computed_region_6mkv_f3dw},",
+						"          {:@computed_region_vrxf_vc4k},",
+						"          {:@computed_region_bdys_3d7i},",
+						"          {:@computed_region_43wa_7qmu},",
+						"          {:@computed_region_rpca_8um6},",
+						"          {:@computed_region_d9mm_jgwp},",
+						"          {:@computed_region_d3ds_rm58},",
+						"          Time",
+						"     ),",
+						"     partitionBy('hash', 1)) ~> sinkchicago",
+						"aggregate1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sinkdayofweek"
+					]
+				}
 			},
 			"dependsOn": []
 		},
@@ -271,7 +726,10 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Binarysorcezip')]",
+				"[concat(variables('factoryId'), '/datasets/Binarysinkzip')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/CopyPipeline_8wv')]",
@@ -438,13 +896,13 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pipelinezip')]",
+			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "Copy data zip",
+						"name": "Copy data1",
 						"type": "Copy",
 						"dependsOn": [],
 						"policy": {
@@ -457,40 +915,80 @@
 						"userProperties": [],
 						"typeProperties": {
 							"source": {
-								"type": "BinarySource",
+								"type": "JsonSource",
 								"storeSettings": {
 									"type": "HttpReadSettings",
 									"requestMethod": "GET"
 								},
 								"formatSettings": {
-									"type": "BinaryReadSettings",
-									"compressionProperties": {
-										"type": "ZipDeflateReadSettings"
-									}
+									"type": "JsonReadSettings"
 								}
 							},
 							"sink": {
-								"type": "BinarySink",
+								"type": "DelimitedTextSink",
 								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
 								}
 							},
 							"enableStaging": false
 						},
 						"inputs": [
 							{
-								"referenceName": "Binaryzip",
+								"referenceName": "Jsonchicago",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
 						],
 						"outputs": [
 							{
-								"referenceName": "Binaryadlszip",
+								"referenceName": "DelimitedTextchicago",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
 						]
+					},
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Copy data1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow1",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"sourcechicagodf": {},
+									"sinkchicago": {},
+									"sinkdayofweek": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
 					}
 				],
 				"policy": {
@@ -499,45 +997,57 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflow1')]"
+			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Trigger_gmh')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
+			"name": "[concat(parameters('factoryName'), '/pipelinechicago')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"annotations": [],
-				"runtimeState": "Stopped",
-				"pipeline": {
-					"pipelineReference": {
-						"referenceName": "CopyPipeline_task",
-						"type": "PipelineReference"
-					},
-					"parameters": {
-						"windowStart": {
-							"type": "Expression",
-							"value": "[parameters('Trigger_gmh_properties_pipeline_parameters_windowStart')]"
+				"activities": [
+					{
+						"name": "DataflowChicago",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
 						},
-						"windowEnd": {
-							"type": "Expression",
-							"value": "[parameters('Trigger_gmh_properties_pipeline_parameters_windowEnd')]"
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow1",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"sourcechicagodf": {},
+									"sinkchicago": {},
+									"sinkdayofweek": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
 						}
 					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
 				},
-				"type": "TumblingWindowTrigger",
-				"typeProperties": {
-					"frequency": "Minute",
-					"interval": 5,
-					"startTime": "2023-01-05T05:54:00Z",
-					"delay": "00:00:00",
-					"maxConcurrency": 50,
-					"retryPolicy": {
-						"intervalInSeconds": 30
-					},
-					"dependsOn": []
-				}
+				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflow1')]"
+			]
 		}
 	]
 }
