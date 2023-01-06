@@ -1,0 +1,16 @@
+{
+	"name": "AzureSqlTable2223",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabaseccc",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "crimedata"
+		}
+	}
+}
